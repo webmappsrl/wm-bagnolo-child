@@ -43,6 +43,7 @@ function wm_single_poi($atts)
 	$addr_locality = null;
 	$gallery = null;
 	$related_urls = null;
+	$poi_types = null;
 
 	if (!empty($poi_properties)) {
 		$title = $poi_properties['name'][$language] ?? '';
@@ -57,11 +58,13 @@ function wm_single_poi($atts)
 		$addr_locality = $poi_properties['addr_locality'] ?? '';
 		$gallery = $poi_properties['image_gallery'] ?? [];
 		$related_urls = $poi_properties['related_url'] ?? [];
+		$poi_types = $poi_properties['taxonomy']['poi_types'] ?? [];
 	}
+
 	ob_start();
 ?>
 	<section class="l-section wpb_row height_small with_img with_overlay wm_header_section">
-		<div class="l-section-img loaded wm-header-image" style="background-image: url(<?= $featured_image ?>);background-repeat: no-repeat;">
+		<div class="l-section-img loaded wm-header-image" style="background-image: url(<?= esc_url($featured_image) ?>); background-repeat: no-repeat;">
 		</div>
 		<div class="l-section-h i-cf wm_header_wrapper">
 		</div>
@@ -71,12 +74,21 @@ function wm_single_poi($atts)
 		<div class="wm_body_map_wrapper">
 			<?php if ($title) { ?>
 				<h1 class="align_left wm_header_title">
-					<?= $title ?>
+					<?= esc_html($title) ?>
 				</h1>
 			<?php } ?>
-			<?php if ($excerpt) { ?>
-				<p class="wm_excerpt"><?php echo wp_kses_post($excerpt); ?></p>
-			<?php } ?>
+			<?php if (!empty($poi_types)) : ?>
+				<div class="wm_activities">
+					<?php foreach ($poi_types as $type) : ?>
+						<span class="wm_activity">
+							<?php if (!empty($type['icon'])) : ?>
+								<span class="wm_activity_icon"><?= $type['icon'] ?></span>
+							<?php endif; ?>
+							<span class="wm_activity_name"><?= esc_html($type['name'][$language] ?? 'N/A') ?></span>
+						</span>
+					<?php endforeach; ?>
+				</div>
+			<?php endif; ?>
 			<iframe class="wm_iframe_map_poi" src="<?= esc_url($iframeUrl); ?>" loading="lazy"></iframe>
 			<div class="wm_info">
 				<?php
@@ -96,16 +108,18 @@ function wm_single_poi($atts)
 					foreach ($related_urls as $url_name => $url) {
 						$urls_output[] = '<a href="' . esc_url($url) . '" target="_blank">' . esc_html($url_name) . '</a>';
 					}
-					$info_parts[] = '<span class="wm_related_urls"> <span class="fa fa-external-link-alt"></span> ' . implode(', ', $urls_output) . '</span>';
+					$info_parts[] = '<span class="wm_related_urls"><span class="fa fa-external-link-alt"></span> ' . implode(', ', $urls_output) . '</span>';
 				}
-				echo implode(' - ', $info_parts);
+				foreach ($info_parts as $info_part) {
+					echo '<div class="wm_info_item">' . $info_part . '</div>';
+				}
 				?>
 			</div>
 		</div>
 
 		<?php if ($description) { ?>
 			<div class="wm_body_description">
-				<?php echo wp_kses_post($description); ?>
+				<?= wp_kses_post($description) ?>
 			</div>
 		<?php } ?>
 
@@ -117,10 +131,11 @@ function wm_single_poi($atts)
 							<div class="swiper-slide">
 								<?php
 								$thumbnail_url = isset($image['thumbnail']) ? esc_url($image['thumbnail']) : '';
-								$high_res_url = isset($image['sizes']['1920x']) ? esc_url($image['sizes']['1920x']) : (isset($image['sizes']['1440x500']) ? esc_url($image['sizes']['1440x500']) : $thumbnail_url);
+								$high_res_url = isset($image['url']) ? esc_url($image['url']) : $thumbnail_url;
+								$caption = isset($image['caption'][$language]) ? esc_attr($image['caption'][$language]) : '';
 								if ($thumbnail_url) : ?>
-									<a href="<?= $high_res_url ?>" data-lightbox="track-gallery" data-title="<?= isset($image['name']['it']) ? esc_attr($image['name']['it']) : '' ?>">
-										<img src="<?= $thumbnail_url ?>" alt="<?= isset($image['name']['it']) ? esc_attr($image['name']['it']) : '' ?>" loading="lazy">
+									<a href="<?= esc_url($high_res_url) ?>" data-lightbox="track-gallery" data-title="<?= esc_attr($caption) ?>">
+										<img src="<?= esc_url($thumbnail_url) ?>" alt="<?= esc_attr($caption) ?>" loading="lazy">
 									</a>
 								<?php endif; ?>
 							</div>
@@ -160,7 +175,6 @@ function wm_single_poi($atts)
 	</script>
 
 <?php
-
 	return ob_get_clean();
 }
 ?>

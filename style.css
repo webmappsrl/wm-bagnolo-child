@@ -31,6 +31,29 @@ Version: 0.0.1
 .wm_body_map_title {
   padding-bottom: 20px;
 }
+.wm_activities {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding-bottom: 20px;
+}
+.wm_activity {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.wm_activity_icon {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.wm_activity_name {
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+}
 .wm_excerpt {
   font-style: italic;
 }
@@ -70,16 +93,18 @@ Version: 0.0.1
   line-height: 26px;
 }
 .wm_info {
-  color: var(--color-content-text);
+  color: var(--color-header-top-text);
   font-weight: bold;
   display: flex;
   flex-direction: column;
   padding: 10px 0px 10px 10px;
 }
-.wm_info_poi {
-  color: var(--color-content-text);
-  font-weight: bold;
-  padding: 0px 0px 10px 10px;
+.wm_info_item {
+  border-bottom: 1px solid var(--color-header-top-text);
+  padding: 10px 0;
+}
+.wm_info_item:last-child {
+  border-bottom: none;
 }
 .wm_body_gallery {
   padding: 30px 0px;
@@ -180,6 +205,11 @@ Version: 0.0.1
     width: 100%;
     margin: auto;
     grid-template-columns: 100%;
+  }
+  .wm_activities {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
   }
 }
 

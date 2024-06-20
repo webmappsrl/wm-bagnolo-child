@@ -27,6 +27,7 @@ function wm_single_track($atts)
 	$featured_image = null;
 	$gallery = [];
 	$gpx = null;
+	$activity = null;
 
 	if ($track) {
 		$description = $track['description'][$language] ?? null;
@@ -36,6 +37,7 @@ function wm_single_track($atts)
 		$featured_image = $track['feature_image']['sizes']['1440x500'] ?? $featured_image_url;
 		$gallery = $track['image_gallery'] ?? [];
 		$gpx = $track['gpx_url'] ?? null;
+		$activity = $track['taxonomy']['activity'] ?? [];
 	}
 	ob_start();
 ?>
@@ -54,6 +56,18 @@ function wm_single_track($atts)
 					<?= $title ?>
 				</h1>
 			<?php } ?>
+			<?php if (!empty($activity)) : ?>
+				<div class="wm_activities">
+					<?php foreach ($activity as $type) : ?>
+						<span class="wm_activity">
+							<?php if (!empty($type['icon'])) : ?>
+								<span class="wm_activity_icon"><?= $type['icon'] ?></span>
+							<?php endif; ?>
+							<span class="wm_activity_name"><?= esc_html($type['name'][$language] ?? 'N/A') ?></span>
+						</span>
+					<?php endforeach; ?>
+				</div>
+			<?php endif; ?>
 			<iframe class="wm_iframe_map_track" src="<?= esc_url($iframeUrl); ?>" loading="lazy"></iframe>
 			<div class="wm_track_body_download">
 			</div>
@@ -73,9 +87,10 @@ function wm_single_track($atts)
 									<?php
 									$thumbnail_url = isset($image['thumbnail']) ? esc_url($image['thumbnail']) : '';
 									$high_res_url = isset($image['url']) ? esc_url($image['url']) : $thumbnail_url;
+									$caption = isset($image['caption'][$language]) ? esc_attr($image['caption'][$language]) : '';
 									if ($thumbnail_url) : ?>
-										<a href="<?= $high_res_url ?>" data-lightbox="track-gallery" data-title="<?= isset($image['name']['it']) ? esc_attr($image['name']['it']) : '' ?>">
-											<img src="<?= $thumbnail_url ?>" alt="<?= isset($image['name']['it']) ? esc_attr($image['name']['it']) : '' ?>" loading="lazy">
+										<a href="<?= $high_res_url ?>" data-lightbox="track-gallery" data-title="<?= $caption ?>">
+											<img src="<?= $thumbnail_url ?>" alt="<?= $caption ?>" loading="lazy">
 										</a>
 									<?php endif; ?>
 								</div>
