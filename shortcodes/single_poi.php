@@ -48,7 +48,7 @@ function wm_single_poi($atts)
 		$title = $poi_properties['name'][$language] ?? '';
 		$description = $poi_properties['description'][$language] ?? '';
 		$excerpt = $poi_properties['excerpt'][$language] ?? '';
-		$featured_image_url = $poi_properties['feature_image']['url'] ?? get_stylesheet_directory_uri() . '/assets/images/background.jpg';
+		$featured_image_url = $poi_properties['feature_image']['url'] ?? get_stylesheet_directory_uri() . '/assets/images/feature_image.jpg';
 		$featured_image = $poi_properties['feature_image']['sizes']['1440x500'] ?? $featured_image_url;
 		$contact_phone = $poi_properties['contact_phone'] ?? '';
 		$contact_email = $poi_properties['contact_email'] ?? '';
@@ -67,84 +67,71 @@ function wm_single_poi($atts)
 		</div>
 	</section>
 
-	<div class="wm_body_section">
-		<?php if ($title) { ?>
-			<h1 class="align_left wm_header_title">
-				<?= $title ?>
-			</h1>
-		<?php } ?>
-		<div class="wm_container">
-			<div class="wm_left_wrapper">
-				<iframe class="wm_iframe_map" src="<?= esc_url($iframeUrl); ?>" loading="lazy"></iframe>
-				<?php if ($description) { ?>
-					<div class="wm_body_description_content">
-						<?php echo wp_kses_post($description); ?>
-					</div>
-				<?php } ?>
-			</div>
-
-			<div class="wm_right_wrapper">
-				<div class="wm_body_gallery">
-					<?php if (is_array($gallery) && !empty($gallery)) : ?>
-						<div class="swiper-container">
-							<div class="swiper-wrapper">
-								<?php foreach ($gallery as $image) : ?>
-									<div class="swiper-slide">
-										<?php
-										$size_order = ['400x200', '1440x500', '335x250', '250x150'];
-										$img_url = null;
-										foreach ($size_order as $size) {
-											if (isset($image['sizes'][$size])) {
-												$img_url = esc_url($image['sizes'][$size]);
-												break;
-											}
-										}
-										if ($img_url) : ?>
-											<img src="<?= $img_url ?>" alt="" loading="lazy">
-										<?php endif; ?>
-									</div>
-								<?php endforeach; ?>
-							</div>
-							<div class="swiper-pagination"></div>
-							<div class="swiper-button-prev"></div>
-							<div class="swiper-button-next"></div>
-						</div>
-					<?php endif; ?>
-				</div>
-				<div class="wm_info">
-					<?php
-					$info_parts = [];
-					if (!empty($addr_street) || !empty($addr_postcode) || !empty($addr_locality)) {
-						$address = trim($addr_street . ', ' . $addr_postcode . ' ' . $addr_locality, ', ');
-						$info_parts[] = '<span class="wm_address_info"><span class="fa fa-map-marker-alt"></span> ' . esc_html($address) . '</span>';
+	<div class="wm_body_poi_section">
+		<div class="wm_body_map_wrapper">
+			<?php if ($title) { ?>
+				<h1 class="align_left wm_header_title">
+					<?= $title ?>
+				</h1>
+			<?php } ?>
+			<?php if ($excerpt) { ?>
+				<p class="wm_excerpt"><?php echo wp_kses_post($excerpt); ?></p>
+			<?php } ?>
+			<iframe class="wm_iframe_map_poi" src="<?= esc_url($iframeUrl); ?>" loading="lazy"></iframe>
+			<div class="wm_info">
+				<?php
+				$info_parts = [];
+				if (!empty($addr_street) || !empty($addr_postcode) || !empty($addr_locality)) {
+					$address = trim($addr_street . ', ' . $addr_postcode . ' ' . $addr_locality, ', ');
+					$info_parts[] = '<span class="wm_address_info"><span class="fa fa-map-marker-alt"></span> ' . esc_html($address) . '</span>';
+				}
+				if (!empty($contact_phone)) {
+					$info_parts[] = '<span class="wm_contact_phone"><span class="fa fa-phone"></span> ' . esc_html($contact_phone) . '</span>';
+				}
+				if (!empty($contact_email)) {
+					$info_parts[] = '<span class="wm_contact_email"><span class="fa fa-envelope"></span> <a href="mailto:' . esc_attr($contact_email) . '">' . esc_html($contact_email) . '</a></span>';
+				}
+				if (!empty($related_urls)) {
+					$urls_output = [];
+					foreach ($related_urls as $url_name => $url) {
+						$urls_output[] = '<a href="' . esc_url($url) . '" target="_blank">' . esc_html($url_name) . '</a>';
 					}
-					if (!empty($contact_phone)) {
-						$info_parts[] = '<span class="wm_contact_phone"><span class="fa fa-phone"></span> ' . esc_html($contact_phone) . '</span>';
-					}
-					if (!empty($contact_email)) {
-						$info_parts[] = '<span class="wm_contact_email"><span class="fa fa-envelope"></span> <a href="mailto:' . esc_attr($contact_email) . '">' . esc_html($contact_email) . '</a></span>';
-					}
-					if (!empty($related_urls)) {
-						$urls_output = [];
-						foreach ($related_urls as $url_name => $url) {
-							$urls_output[] = '<a href="' . esc_url($url) . '" target="_blank">' . esc_html($url_name) . '</a>';
-						}
-						$info_parts[] = '<span class="wm_related_urls"> <span class="fa fa-external-link-alt"></span> ' . implode(', ', $urls_output) . '</span>';
-					}
-					foreach ($info_parts as $info_part) {
-						echo '<div class="wm_info_item">' . $info_part . '</div>';
-					}
-					?>
-				</div>
+					$info_parts[] = '<span class="wm_related_urls"> <span class="fa fa-external-link-alt"></span> ' . implode(', ', $urls_output) . '</span>';
+				}
+				echo implode(' - ', $info_parts);
+				?>
 			</div>
 		</div>
-	</div>
 
+		<?php if ($description) { ?>
+			<div class="wm_body_description">
+				<?php echo wp_kses_post($description); ?>
+			</div>
+		<?php } ?>
 
-
-
-
-
+		<div class="wm_body_gallery">
+			<?php if (is_array($gallery) && !empty($gallery)) : ?>
+				<div class="swiper-container">
+					<div class="swiper-wrapper">
+						<?php foreach ($gallery as $image) : ?>
+							<div class="swiper-slide">
+								<?php
+								$thumbnail_url = isset($image['thumbnail']) ? esc_url($image['thumbnail']) : '';
+								$high_res_url = isset($image['sizes']['1920x']) ? esc_url($image['sizes']['1920x']) : (isset($image['sizes']['1440x500']) ? esc_url($image['sizes']['1440x500']) : $thumbnail_url);
+								if ($thumbnail_url) : ?>
+									<a href="<?= $high_res_url ?>" data-lightbox="track-gallery" data-title="<?= isset($image['name']['it']) ? esc_attr($image['name']['it']) : '' ?>">
+										<img src="<?= $thumbnail_url ?>" alt="<?= isset($image['name']['it']) ? esc_attr($image['name']['it']) : '' ?>" loading="lazy">
+									</a>
+								<?php endif; ?>
+							</div>
+						<?php endforeach; ?>
+					</div>
+					<div class="swiper-pagination"></div>
+					<div class="swiper-button-prev"></div>
+					<div class="swiper-button-next"></div>
+				</div>
+			<?php endif; ?>
+		</div>
 	</div>
 
 	<script>
@@ -152,6 +139,12 @@ function wm_single_poi($atts)
 			var swiper = new Swiper('.swiper-container', {
 				slidesPerView: 1,
 				spaceBetween: 10,
+				breakpoints: {
+					768: {
+						slidesPerView: 3,
+						spaceBetween: 20
+					},
+				},
 				freeMode: true,
 				loop: true,
 				pagination: {
