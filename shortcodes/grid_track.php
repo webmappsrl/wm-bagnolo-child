@@ -15,16 +15,19 @@ function wm_grid_track($atts)
         'layer_id' => '',
         'layer_ids' => '',
         'quantity' => -1,
-        'random' => 'false'
+        'random' => 'false',
+        'activities' => '' // Nuovo parametro per filtrare le attività
     ), $atts));
 
     $tracks = [];
     $layer_ids_array = !empty($layer_ids) ? explode(',', $layer_ids) : (!empty($layer_id) ? [$layer_id] : []);
+    $activities_filter = !empty($activities) ? explode(',', $activities) : [];
+    $app_id = get_option('app_configuration_id');
 
     foreach ($layer_ids_array as $id) {
         if (empty($id)) continue;
 
-        $layer_url = "https://geohub.webmapp.it/api/app/webapp/49/layer/{$id}";
+        $layer_url = "https://geohub.webmapp.it/api/app/webapp/$app_id/layer/{$id}";
         $response = wp_remote_get($layer_url);
 
         if (is_wp_error($response)) continue;
@@ -32,6 +35,15 @@ function wm_grid_track($atts)
         $layer_data = json_decode(wp_remote_retrieve_body($response), true);
         if (!empty($layer_data['tracks'])) {
             foreach ($layer_data['tracks'] as $track) {
+                // Filtraggio delle attività
+                if (!empty($activities_filter)) {
+                    $track_activities = $track['activities'][$app_id] ?? [];
+                    $match = array_intersect($activities_filter, $track_activities);
+                    if (empty($match)) {
+                        continue; // Salta questa traccia se non corrisponde alle attività filtrate
+                    }
+                }
+
                 if (!empty($layer_data['taxonomy_themes'][0]['icon'])) {
                     $track['svg_icon'] = $layer_data['taxonomy_themes'][0]['icon'];
                 }
@@ -58,7 +70,7 @@ function wm_grid_track($atts)
                 $name_url = wm_custom_slugify($name);
                 $language_prefix = $language === 'en' ? '/en' : '';
                 $track_page_url = "{$language_prefix}/track/{$name_url}/";
-                $svg_icon = $track['svg_icon'] ?? '';
+                $svg_icon = !empty($activities) ? '' : ($track['svg_icon'] ?? ''); // Se c'è il parametro activities, non mostrare l'icona
                 ?>
                 <a href="<?= esc_url($track_page_url); ?>">
                     <?php if ($feature_image_url) : ?>
@@ -79,3 +91,4 @@ function wm_grid_track($atts)
 <?php
     return ob_get_clean();
 }
+?>

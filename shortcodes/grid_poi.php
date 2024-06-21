@@ -20,9 +20,10 @@ function wm_grid_poi($atts)
 
         $poi_data = [];
         $poi_type_ids_array = !empty($poi_type_ids) ? explode(',', $poi_type_ids) : (!empty($poi_type_id) ? [$poi_type_id] : []);
+        $app_id = get_option('app_configuration_id');
 
         foreach ($poi_type_ids_array as $id) {
-            $poi_url = "https://geohub.webmapp.it/api/app/webapp/49/taxonomies/poi_type/$id";
+            $poi_url = "https://geohub.webmapp.it/api/app/webapp/$app_id/taxonomies/poi_type/$id";
             $response = wp_remote_get($poi_url);
 
             if (!is_wp_error($response)) {
@@ -52,7 +53,7 @@ function wm_grid_poi($atts)
                 <div class="wm_grid_poi_item">
                     <?php
                     $name = $poi['name'][$language] ?? '';
-                    $feature_image_url = $poi['featureImage']['thumbnail'] ?? '/assets/images/background.jpg';
+                    $feature_image_url = $poi['featureImage']['thumbnail'] ?? get_stylesheet_directory_uri() . '/assets/images/background.jpg';
                     $name_url = wm_custom_slugify($name);
                     $language_prefix = $language === 'en' ? '/en' : '';
                     $poi_page_url = "{$language_prefix}/poi/{$name_url}/";
