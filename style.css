@@ -9,6 +9,14 @@ Version: 0.0.1
 
 /*Add your own styles here:*/
 
+/* Home */
+div.wm_home_text > div > p > a {
+  color: white;
+}
+div.wm_home_text > div > p > a:hover {
+  color: var(--color-header-middle-text-hover);
+}
+
 /* Single track & poi */
 .wm_body_track_section,
 .wm_body_poi_section {
