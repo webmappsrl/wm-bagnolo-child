@@ -10,10 +10,10 @@ Version: 0.0.1
 /*Add your own styles here:*/
 
 /* Home */
-div.wm_home_text > div > p > a {
+.wm_home_text {
   color: white;
 }
-div.wm_home_text > div > p > a:hover {
+.wm_home_text {
   color: var(--color-header-middle-text-hover);
 }
 
